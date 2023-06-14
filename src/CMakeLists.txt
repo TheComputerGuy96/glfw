@@ -396,5 +396,11 @@ if (GLFW_INSTALL)
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
+    if (GLFW_BUILD_WAYLAND)
+        # Add custom library name to allow using the library after the LWJGL update
+        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink libglfw.so ${CMAKE_CURRENT_BINARY_DIR}/libglfw_frog.so)
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libglfw_frog.so DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endif()
 endif()
 
