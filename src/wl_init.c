@@ -476,10 +476,7 @@ GLFWbool _glfwConnectWayland(int platformID, _GLFWplatform* platform)
     if (!module)
     {
         if (platformID == GLFW_PLATFORM_WAYLAND)
-        {
-            _glfwInputError(GLFW_PLATFORM_ERROR,
-                            "Wayland: Failed to load libwayland-client");
-        }
+            fprintf(stderr, "Wayland: Failed to load libwayland-client\n");
 
         return GLFW_FALSE;
     }
@@ -489,10 +486,7 @@ GLFWbool _glfwConnectWayland(int platformID, _GLFWplatform* platform)
     if (!wl_display_connect)
     {
         if (platformID == GLFW_PLATFORM_WAYLAND)
-        {
-            _glfwInputError(GLFW_PLATFORM_ERROR,
-                            "Wayland: Failed to load libwayland-client entry point");
-        }
+            fprintf(stderr, "Wayland: Failed to load libwayland-client entry point\n");
 
         _glfwPlatformFreeModule(module);
         return GLFW_FALSE;
@@ -502,7 +496,7 @@ GLFWbool _glfwConnectWayland(int platformID, _GLFWplatform* platform)
     if (!display)
     {
         if (platformID == GLFW_PLATFORM_WAYLAND)
-            _glfwInputError(GLFW_PLATFORM_ERROR, "Wayland: Failed to connect to display");
+            fprintf(stderr, "Wayland: Failed to connect to display\n");
 
         _glfwPlatformFreeModule(module);
         return GLFW_FALSE;
