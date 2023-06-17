@@ -144,11 +144,13 @@ static GLFWbool openJoystickDevice(const char* path)
     char evBits[(EV_CNT + 7) / 8] = {0};
     char keyBits[(KEY_CNT + 7) / 8] = {0};
     char absBits[(ABS_CNT + 7) / 8] = {0};
+    char relBits[(REL_CNT + 7) / 8] = {0};
     struct input_id id;
 
     if (ioctl(linjs.fd, EVIOCGBIT(0, sizeof(evBits)), evBits) < 0 ||
         ioctl(linjs.fd, EVIOCGBIT(EV_KEY, sizeof(keyBits)), keyBits) < 0 ||
         ioctl(linjs.fd, EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits) < 0 ||
+        ioctl(linjs.fd, EVIOCGBIT(EV_REL, sizeof(relBits)), relBits) < 0 ||
         ioctl(linjs.fd, EVIOCGID, &id) < 0)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
@@ -159,7 +161,18 @@ static GLFWbool openJoystickDevice(const char* path)
     }
 
     // Ensure this device supports the events expected of a joystick
-    if (!isBitSet(EV_ABS, evBits))
+    // Note: This is inspired by the SDL2 joystick check
+    if (isBitSet(BTN_STYLUS, keyBits) ||
+        isBitSet(BTN_TOOL_PEN, keyBits) ||
+        isBitSet(BTN_TOOL_FINGER, keyBits) ||
+        isBitSet(BTN_MOUSE, keyBits) ||
+        isBitSet(BTN_TOUCH, keyBits) ||
+        (keyBits[0] & 0xFFFFFFFE) != 0) // Keyboard check from SDL2
+    {
+        close(linjs.fd);
+        return GLFW_FALSE;
+    }
+    else if (!isBitSet(EV_ABS, evBits))
     {
         close(linjs.fd);
         return GLFW_FALSE;
