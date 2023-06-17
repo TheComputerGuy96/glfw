@@ -73,10 +73,40 @@ static _GLFWmapping* findMapping(const char* guid)
 {
     int i;
 
+    // Variables for the massive hack
+    int len_st = 20;
+    int len_mid = 12;
+    char tmp[len_st]; // 20
+    char tmp2[len_st]; // 20
+    char tmp_mid[len_mid + 1]; // 12 + NUL
+    char tmp_mid2[len_mid + 1]; // 12 + NULL
+
     for (i = 0;  i < _glfw.mappingCount;  i++)
     {
         if (strcmp(_glfw.mappings[i].guid, guid) == 0)
             return _glfw.mappings + i;
+        else
+        {
+            // Check only VID/PID section
+            // TODO: fix this massive hack
+            (void)strncpy(tmp, _glfw.mappings[i].guid, len_st);
+            (void)strncpy(tmp2, guid, len_st);
+
+            if (tmp[0] != '\0' && tmp2[0] != '\0')
+            {
+                (void)strncpy(tmp_mid, &tmp[8], len_mid);
+                (void)strncpy(tmp_mid2, &tmp2[8], len_mid);
+
+                if (tmp_mid[0] != '\0' && tmp_mid2[0] != '\0')
+                {
+                    tmp_mid[len_mid] = '\0';
+                    tmp_mid2[len_mid] = '\0';
+
+                    if (strcmp(tmp_mid, tmp_mid2) == 0)
+                        return _glfw.mappings + i;
+                }
+            }
+        }
     }
 
     return NULL;
